@@ -190,10 +190,19 @@ def get_recipe(message):
     bot.send_message(message.chat.id, "Хочешь пройти тест заново?", reply_markup=markup)
 
 
-# Обработка нажатия на inline-кнопку
+
+
+# Обработчик inline-кнопки "restart"
 @bot.callback_query_handler(func=lambda call: call.data == "restart")
 def restart_test(call):
-    start(call.message)
-
+    # Отправляем сообщение, как при команде /restart
+    user_answers[call.message.chat.id] = []  # Очищаем ответы пользователя
+    bot.send_message(
+        call.message.chat.id,
+        'Снова привет! Взглянем иначе на эти вопросы, готов?',
+        reply_markup=create_reply_markup(['Конечно! Начнем'])
+    )
+    # Регистрируем следующий шаг
+    bot.register_next_step_handler(call.message, on_1click)
 
 bot.polling(none_stop=True)
