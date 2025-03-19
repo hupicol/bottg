@@ -168,7 +168,7 @@ def send_result(message):
 
     keyboard = types.InlineKeyboardMarkup()
 
-    recipe_button = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    recipe_button = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     recipe_button.add(types.KeyboardButton("📜 Хочу рецепт!"))
     bot.send_message(message.chat.id, "Хочешь получить рецепт этого кофе?", reply_markup=recipe_button)
     del user_answers[message.chat.id]
