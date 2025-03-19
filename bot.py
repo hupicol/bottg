@@ -12,17 +12,20 @@ def create_reply_markup(options):
     return markup
 
 @bot.message_handler(commands=['start', 'restart'])
-def start(message):
-    user_answers[message.chat.id] = []
-    markup = create_reply_markup(['Конечно! Начнем'])
-    bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}! Давай знакомиться!Я задам тебе пару вопросов, только отвечай честно!Готов?...', reply_markup=markup)
-    bot.register_next_step_handler(message, on_1click)
-
-@bot.message_handler(commands=['restart'])
-def restart(message):
-    user_answers[message.chat.id] = []
-    markup = create_reply_markup(['Конечно! Начнем'])
-    bot.send_message(message.chat.id, f'Снова привет!Взглянем иначе на эти вопросы, готов?', reply_markup=markup)
+def handle_start_restart(message):
+    user_answers[message.chat.id] = []  # Очищаем ответы пользователя
+    if message.text == '/start':
+        bot.send_message(
+            message.chat.id,
+            f'Привет, {message.from_user.first_name}! Давай знакомиться! Я задам тебе пару вопросов, только отвечай честно! Готов?...',
+            reply_markup=create_reply_markup(['Конечно! Начнем'])
+        )
+    elif message.text == '/restart':
+        bot.send_message(
+            message.chat.id,
+            'Снова привет! Взглянем иначе на эти вопросы, готов?',
+            reply_markup=create_reply_markup(['Конечно! Начнем'])
+        )
     bot.register_next_step_handler(message, on_1click)
 
 def on_1click(message):
