@@ -243,17 +243,4 @@ def send_result(message):
             reply_markup=create_inline_keyboard(exclude_option="coffee_countries")  # Прикрепляем клавиатуру
         )
 
-    # Обработчик inline-кнопки "restart"
-    @bot.callback_query_handler(func=lambda call: call.data == "restart")
-    def restart_test(call):
-        # Отправляем сообщение, как при команде /restart
-        user_answers[call.message.chat.id] = []  # Очищаем ответы пользователя
-        bot.send_message(
-            call.message.chat.id,
-            'Снова привет! Взглянем иначе на эти вопросы, готов?',
-            reply_markup=create_reply_markup(['Конечно! Начнем'])
-        )
-        # Регистрируем следующий шаг
-        bot.register_next_step_handler(call.message, on_1click)
-
     bot.polling(none_stop=True)
