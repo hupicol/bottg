@@ -200,8 +200,8 @@ def get_recipe(message):
     bot.send_message(message.chat.id, recipe)
     bot.send_message(message.chat.id, "Что ещё хочешь узнать?", reply_markup=create_inline_keyboard())
 
-
-
+coffee_facts_photo = "https://interesnyefakty.org/wp-content/uploads/Interesnye-fakty-o-kofe.jpg"
+coffee_countries_photo = "https://coffee.spb.ru/upload/iblock/a7a/a7ad14bdb28b2eeac9b848d8add5231b.jpg"
 
 
 # Обработчик inline-кнопки "coffee_facts"
@@ -218,6 +218,8 @@ def send_coffee_facts(call):
         "❃ Элементы, которые содержаться в кофе, благоприятно сказываются на зубной эмали, не давая бактериям оседать на ней. Благодаря этому кофеманы значительно реже обращаются к стоматологу. "
     )
     bot.send_message(call.message.chat.id, facts)
+    bot.send_photo(call.message.chat.id, coffee_facts_photo, caption=facts)
+
     # Показываем оставшиеся кнопки (исключаем "coffee_facts")
     bot.send_message(call.message.chat.id, "Что ещё хочешь узнать?",
                      reply_markup=create_inline_keyboard(exclude_option="coffee_facts"))
@@ -237,6 +239,7 @@ def send_coffee_countries(call):
         "Фика: как пить кофе по-шведски: Шведский подход — полная противоположность концепции «кофе с собой». Фика — это не просто перерыв на кофе, а возможность остановиться на мгновение и прочувствовать настоящий момент.В Швеции официально разрешено делать такие перерывы во время рабочего дня каждые 2-3 часа. И главное правило фики — не обсуждать деловые вопросы."
     )
     bot.send_message(call.message.chat.id, countries)
+    bot.send_photo(call.message.chat.id, coffee_countries_photo, caption=countries)
     # Показываем оставшиеся кнопки (исключаем "coffee_countries")
     bot.send_message(call.message.chat.id, "Что ещё хочешь узнать?",
                      reply_markup=create_inline_keyboard(exclude_option="coffee_countries"))
