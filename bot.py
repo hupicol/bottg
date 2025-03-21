@@ -173,6 +173,22 @@ def send_result(message):
     bot.send_message(message.chat.id, "Хочешь получить рецепт этого кофе?", reply_markup=recipe_button)
     del user_answers[message.chat.id]
 
+def create_inline_keyboard(exclude_option=None):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        buttons = [
+            types.InlineKeyboardButton(text="Пройти тест заново", callback_data="restart"),
+            types.InlineKeyboardButton(text="Узнать интересные факты", callback_data="coffee_facts"),
+            types.InlineKeyboardButton(text="Узнать особенности приготовления в разных странах",
+                                       callback_data="coffee_countries")
+        ]
+
+        # Исключаем нажатую кнопку
+        for button in buttons:
+            if button.callback_data != exclude_option:
+                markup.add(button)
+
+        return markup
+
 
 @bot.message_handler(func=lambda message: message.text == "📜 Хочу рецепт!")
 def get_recipe(message):
@@ -182,17 +198,11 @@ def get_recipe(message):
 
     # Отправляем рецепт
     bot.send_message(message.chat.id, recipe)
+    bot.send_message(message.chat.id, "Что ещё хочешь узнать?", reply_markup=create_inline_keyboard())
 
-    # Добавляем кнопку для возврата в начало
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    restart_button = types.InlineKeyboardButton(text="Пройти тест заново", callback_data="restart")
-    facts_button = types.InlineKeyboardButton(text="Узнать интересные факты", callback_data="coffee_facts")
-    countries_button = types.InlineKeyboardButton(text="Узнать особенности приготовления в разных странах",
-                                                  callback_data="coffee_countries")
-    markup.add(restart_button, facts_button, countries_button)
 
-    # Отправляем сообщение с кнопками
-    bot.send_message(message.chat.id, "Что ещё хочешь узнать?", reply_markup=markup)
+
+
 
 # Обработчик inline-кнопки "coffee_facts"
 @bot.callback_query_handler(func=lambda call: call.data == "coffee_facts")
@@ -208,6 +218,10 @@ def send_coffee_facts(call):
         "❃ Элементы, которые содержаться в кофе, благоприятно сказываются на зубной эмали, не давая бактериям оседать на ней. Благодаря этому кофеманы значительно реже обращаются к стоматологу. "
     )
     bot.send_message(call.message.chat.id, facts)
+    # Показываем оставшиеся кнопки (исключаем "coffee_facts")
+    bot.send_message(call.message.chat.id, "Что ещё хочешь узнать?",
+                     reply_markup=create_inline_keyboard(exclude_option="coffee_facts"))
+
 
 # Обработчик inline-кнопки "coffee_countries"
 @bot.callback_query_handler(func=lambda call: call.data == "coffee_countries")
@@ -223,7 +237,9 @@ def send_coffee_countries(call):
         "Фика: как пить кофе по-шведски: Шведский подход — полная противоположность концепции «кофе с собой». Фика — это не просто перерыв на кофе, а возможность остановиться на мгновение и прочувствовать настоящий момент.В Швеции официально разрешено делать такие перерывы во время рабочего дня каждые 2-3 часа. И главное правило фики — не обсуждать деловые вопросы."
     )
     bot.send_message(call.message.chat.id, countries)
-
+    # Показываем оставшиеся кнопки (исключаем "coffee_countries")
+    bot.send_message(call.message.chat.id, "Что ещё хочешь узнать?",
+                     reply_markup=create_inline_keyboard(exclude_option="coffee_countries"))
 
 
 # Обработчик inline-кнопки "restart"
