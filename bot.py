@@ -183,6 +183,7 @@ def get_recipe(message):
     markup.add(types.KeyboardButton("Узнать интересные факты"))
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
+    markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(message.chat.id, "Что ещё хочешь узнать?", reply_markup=markup)
 
 
@@ -207,6 +208,7 @@ def send_coffee_facts(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
+    markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(message.chat.id, "Признайся, интересно ?)", reply_markup=markup)
 
 
@@ -227,8 +229,17 @@ def send_coffee_countries(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(types.KeyboardButton("Узнать интересные факты"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
+    markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(message.chat.id, "Может хочешь больше информации ?)", reply_markup=markup)
 
+
+@bot.message_handler(func=lambda message: message.text == "Пока что все")
+def stop_test(message):
+    user_answers[message.chat.id] = []  # Очищаем ответы пользователя
+    bot.send_message(
+        message.chat.id,
+        'На этом пока все! Если захочешь пройти тест заново, открой Меню:)'
+    )
 
 @bot.message_handler(func=lambda message: message.text == "Пройти тест заново")
 def restart_test(message):
