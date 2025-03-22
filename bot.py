@@ -204,6 +204,10 @@ def send_coffee_facts(message):
     )
     bot.send_photo(message.chat.id, coffee_facts_photo)
     bot.send_message(message.chat.id, facts)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
+    markup.add(types.KeyboardButton("Пройти тест заново"))
+    bot.send_message(message.chat.id, "Признайся, интересно ?)", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Узнать особенности приготовления в разных странах")
@@ -220,6 +224,10 @@ def send_coffee_countries(message):
     )
     bot.send_photo(message.chat.id, coffee_countries_photo)
     bot.send_message(message.chat.id, countries)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup.add(types.KeyboardButton("Узнать интересные факты"))
+    markup.add(types.KeyboardButton("Пройти тест заново"))
+    bot.send_message(message.chat.id, "Может хочешь больше информации ?)", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Пройти тест заново")
