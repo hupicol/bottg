@@ -225,34 +225,32 @@ milk_coffee_data = {
 
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    current_part[message.chat.id] = 1
+    current_part[message.chat.id] = 1  # Начинаем с первой части
     send_coffee_part(message.chat.id, 1)
 
 
 def send_coffee_part(chat_id, part_num):
+    # Удаляем предыдущую клавиатуру
+    bot.send_chat_action(chat_id, 'typing')
+
     part = milk_coffee_data.get(part_num)
     if not part:
         return_to_main_menu(chat_id)
         return
 
-    # Создаем медиагруппу с текстом как подписью к первому фото
+    # Отправляем медиагруппу
     media_group = []
-    if part['photos']:
-        # Первое фото с текстом
-        media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    for photo_url in part['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo_url))
 
-        # Остальные фото без подписи
-        for photo_url in part['photos'][1:]:
-            media_group.append(types.InputMediaPhoto(photo_url))
+    bot.send_media_group(chat_id, media_group)
 
-        # Отправляем всю группу фото с текстом
-        bot.send_media_group(chat_id, media_group)
-
-    # Сразу после медиагруппы отправляем кнопку "Далее"
+    # Отправляем кнопку "Далее" только если есть следующая часть
     if part_num < len(milk_coffee_data):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton("Далее"))
-        bot.send_message(chat_id, " ", reply_markup=markup)  # Пустое сообщение с кнопкой
+        bot.send_message(chat_id, " ", reply_markup=markup)
     else:
         return_to_main_menu(chat_id)
 
@@ -268,8 +266,11 @@ def handle_next(message):
         else:
             return_to_main_menu(chat_id)
     else:
+        # Если состояние потеряно, начинаем сначала
         start_milk_coffee(message)
 
+
+# Остальные ваши обработчики (для теста, фактов и т.д.) остаются без изменений
 
 def return_to_main_menu(chat_id):
     if chat_id in current_part:
@@ -287,6 +288,8 @@ def return_to_main_menu(chat_id):
         markup.add(types.KeyboardButton(btn))
 
     bot.send_message(chat_id, "Выберите следующее действие:", reply_markup=markup)
+
+
 
 
 
