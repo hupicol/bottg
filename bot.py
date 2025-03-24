@@ -262,7 +262,7 @@ def handle_next(message):
     try:
         chat_id = message.chat.id
         if chat_id in current_part:
-            next_part = current_part[chat_id] + 1
+            next_part = (current_part[chat_id] + 1)
             if next_part in milk_coffee_data:
                 current_part[chat_id] = next_part
                 send_coffee_part(chat_id, next_part)
