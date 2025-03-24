@@ -213,9 +213,7 @@ def send_part1(message):
     bot.send_photo(message.chat.id, 'https://www.galaktika29.ru/upload/iblock/278/lb7ep7tjcv87g0pym6gkgxv72ltjswzs.jpeg')
     bot.send_photo(message.chat.id, 'https://coffeefan.info/wp-content/uploads/2018/09/karamel-macchiato.jpg')
 
-    # Через 1 секунду отправляем вторую часть
-    bot.send_chat_action(message.chat.id, 'typing')  # Показываем "печатает"
-    send_part2(message.chat.id)
+    bot.register_next_step_handler(message,send_part2)
 
 
 def send_part2(message):
@@ -227,8 +225,7 @@ def send_part2(message):
     bot.send_photo(message.chat.id, 'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG')
     bot.send_photo(message.chat.id, 'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg')
 
-    bot.send_chat_action(message.chat.id, 'typing')
-    send_part3(message.chat.id)
+    bot.register_next_step_handler(message, send_part3)
 
 
 def send_part3(message):
