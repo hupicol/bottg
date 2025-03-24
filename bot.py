@@ -232,8 +232,6 @@ def start_milk_coffee(message):
 
 # Функция для отправки первой части
 def send_part1(chat_id):
-    # Отправляем текст
-    bot.send_message(chat_id, milk_coffee_part1['text'])
 
     # Отправляем фото как медиагруппу
     media_group = []
@@ -242,6 +240,7 @@ def send_part1(chat_id):
 
     if media_group:
         bot.send_media_group(chat_id, media_group)
+    bot.send_message(chat_id, milk_coffee_part1['text'])
 
     # Добавляем кнопку "Далее"
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -251,8 +250,6 @@ def send_part1(chat_id):
 
 # Функция для отправки второй части
 def send_part2(chat_id):
-    # Отправляем текст
-    bot.send_message(chat_id, milk_coffee_part2['text'])
 
     # Отправляем фото как медиагруппу
     media_group = []
@@ -261,7 +258,7 @@ def send_part2(chat_id):
 
     if media_group:
         bot.send_media_group(chat_id, media_group)
-
+    bot.send_message(chat_id, milk_coffee_part2['text'])
     # Добавляем кнопку "Далее"
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("Далее"))
@@ -270,8 +267,6 @@ def send_part2(chat_id):
 
 # Функция для отправки третьей части
 def send_part3(chat_id):
-    # Отправляем текст
-    bot.send_message(chat_id, milk_coffee_part3['text'])
 
     # Отправляем фото как медиагруппу
     media_group = []
@@ -280,6 +275,8 @@ def send_part3(chat_id):
 
     if media_group:
         bot.send_media_group(chat_id, media_group)
+    # Отправляем текст
+    bot.send_message(chat_id, milk_coffee_part3['text'])
 
     # Возвращаем основное меню
     return_to_main_menu(chat_id)
@@ -329,6 +326,7 @@ def send_coffee_facts(message):
     bot.send_message(message.chat.id, facts)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
+    markup.add(types.KeyboardButton("Отличие кофе с молоком"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
     markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(message.chat.id, "Признайся, интересно ?)", reply_markup=markup)
@@ -350,6 +348,7 @@ def send_coffee_countries(message):
     bot.send_message(message.chat.id, countries)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(types.KeyboardButton("Узнать интересные факты"))
+    markup.add(types.KeyboardButton("Отличие кофе с молоком"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
     markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(message.chat.id, "Может хочешь больше информации ?)", reply_markup=markup)
