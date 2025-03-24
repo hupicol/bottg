@@ -225,52 +225,54 @@ milk_coffee_data = {
 
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    current_part[message.chat.id] = 1  # Начинаем с первой части
+    # Удаляем предыдущую клавиатуру
+    bot.send_chat_action(message.chat.id, 'typing')
+    current_part[message.chat.id] = 1
     send_coffee_part(message.chat.id, 1)
 
 
 def send_coffee_part(chat_id, part_num):
-    # Удаляем предыдущую клавиатуру
-    bot.send_chat_action(chat_id, 'typing')
+    try:
+        part = milk_coffee_data[part_num]
 
-    part = milk_coffee_data.get(part_num)
-    if not part:
-        return_to_main_menu(chat_id)
-        return
+        # Отправляем медиагруппу
+        media_group = [types.InputMediaPhoto(part['photos'][0], caption=part['text'])]
+        media_group.extend(types.InputMediaPhoto(p) for p in part['photos'][1:])
+        bot.send_media_group(chat_id, media_group)
 
-    # Отправляем медиагруппу
-    media_group = []
-    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
-    for photo_url in part['photos'][1:]:
-        media_group.append(types.InputMediaPhoto(photo_url))
+        # Отправляем кнопку "Далее" с понятным сообщением
+        if part_num < len(milk_coffee_data):
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+            markup.add(types.KeyboardButton("Далее"))
+            bot.send_message(
+                chat_id,
+                "Продолжаем изучать виды кофе с молоком?",
+                reply_markup=markup
+            )
+        else:
+            return_to_main_menu(chat_id)
 
-    bot.send_media_group(chat_id, media_group)
-
-    # Отправляем кнопку "Далее" только если есть следующая часть
-    if part_num < len(milk_coffee_data):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(types.KeyboardButton("Далее"))
-        bot.send_message(chat_id, " ", reply_markup=markup)
-    else:
+    except Exception as e:
+        print(f"Ошибка при отправке части {part_num}: {e}")
         return_to_main_menu(chat_id)
 
 
 @bot.message_handler(func=lambda message: message.text == "Далее")
 def handle_next(message):
-    chat_id = message.chat.id
-    if chat_id in current_part:
-        next_part = current_part[chat_id] + 1
-        if next_part <= len(milk_coffee_data):
-            current_part[chat_id] = next_part
-            send_coffee_part(chat_id, next_part)
+    try:
+        chat_id = message.chat.id
+        if chat_id in current_part:
+            next_part = current_part[chat_id] + 1
+            if next_part in milk_coffee_data:
+                current_part[chat_id] = next_part
+                send_coffee_part(chat_id, next_part)
+            else:
+                return_to_main_menu(chat_id)
         else:
-            return_to_main_menu(chat_id)
-    else:
-        # Если состояние потеряно, начинаем сначала
-        start_milk_coffee(message)
-
-
-# Остальные ваши обработчики (для теста, фактов и т.д.) остаются без изменений
+            start_milk_coffee(message)
+    except Exception as e:
+        print(f"Ошибка обработки 'Далее': {e}")
+        return_to_main_menu(message.chat.id)
 
 def return_to_main_menu(chat_id):
     if chat_id in current_part:
