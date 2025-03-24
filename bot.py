@@ -245,17 +245,15 @@ def send_coffee_part(chat_id, part_num):
         for photo_url in part['photos'][1:]:
             media_group.append(types.InputMediaPhoto(photo_url))
 
-        # Отправляем всю группу фото с текстом к первому
+        # Отправляем всю группу фото с текстом
         bot.send_media_group(chat_id, media_group)
 
-    # Определяем следующие действия
+    # Сразу после медиагруппы отправляем кнопку "Далее"
     if part_num < len(milk_coffee_data):
-        # Для всех частей кроме последней - кнопка "Далее"
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton("Далее"))
-        bot.send_message(chat_id, "➡️ Хотите увидеть следующую часть?", reply_markup=markup)
+        bot.send_message(chat_id, " ", reply_markup=markup)  # Пустое сообщение с кнопкой
     else:
-        # Для последней части - возврат в меню
         return_to_main_menu(chat_id)
 
 
@@ -264,8 +262,11 @@ def handle_next(message):
     chat_id = message.chat.id
     if chat_id in current_part:
         next_part = current_part[chat_id] + 1
-        current_part[chat_id] = next_part
-        send_coffee_part(chat_id, next_part)
+        if next_part <= len(milk_coffee_data):
+            current_part[chat_id] = next_part
+            send_coffee_part(chat_id, next_part)
+        else:
+            return_to_main_menu(chat_id)
     else:
         start_milk_coffee(message)
 
