@@ -192,7 +192,7 @@ def get_recipe(message):
 coffee_facts_photo = "https://interesnyefakty.org/wp-content/uploads/Interesnye-fakty-o-kofe.jpg"
 coffee_countries_photo = "https://coffee.spb.ru/upload/iblock/a7a/a7ad14bdb28b2eeac9b848d8add5231b.jpg"
 
-current_part = {}
+
 
 # Ваши данные
 milk_coffee_data = {
@@ -222,66 +222,61 @@ milk_coffee_data = {
     }
 }
 
+user_part = {}
+
 
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    # Удаляем предыдущую клавиатуру
-    bot.send_chat_action(message.chat.id, 'typing')
-    current_part[message.chat.id] = 1
+    user_part[message.chat.id] = 1  # Начинаем с первой части
     send_coffee_part(message.chat.id, 1)
 
 
 def send_coffee_part(chat_id, part_num):
-    try:
-        part = milk_coffee_data[part_num]
+    part = milk_coffee_data.get(part_num)
+    if not part:
+        return_to_main_menu(chat_id)
+        return
 
-        # Отправляем медиагруппу
-        media_group = [types.InputMediaPhoto(part['photos'][0], caption=part['text'])]
-        media_group.extend(types.InputMediaPhoto(p) for p in part['photos'][1:])
-        bot.send_media_group(chat_id, media_group)
+    # Отправляем медиагруппу с текстом к первому фото
+    media_group = [types.InputMediaPhoto(part['photos'][0], caption=part['text'])]
+    media_group.extend(types.InputMediaPhoto(p) for p in part['photos'][1:])
+    bot.send_media_group(chat_id, media_group)
 
-        # Отправляем кнопку "Далее" с понятным сообщением
-        if part_num < len(milk_coffee_data):
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-            markup.add(types.KeyboardButton("Далее"))
-            bot.send_message(
-                chat_id,
-                "Продолжаем изучать виды кофе с молоком?",
-                reply_markup=markup
-            )
-        else:
-            return_to_main_menu(chat_id)
-
-    except Exception as e:
-        print(f"Ошибка при отправке части {part_num}: {e}")
+    # Если есть следующая часть - предлагаем продолжить
+    if part_num < len(milk_coffee_data):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(types.KeyboardButton("Далее"))
+        bot.send_message(
+            chat_id,
+            "Хотите продолжить изучение кофе с молоком?",
+            reply_markup=markup
+        )
+    else:
         return_to_main_menu(chat_id)
 
 
 @bot.message_handler(func=lambda message: message.text == "Далее")
 def handle_next(message):
-    try:
-        chat_id = message.chat.id
-        if chat_id in current_part:
-            next_part = (current_part[chat_id] + 1)
-            if next_part in milk_coffee_data:
-                current_part[chat_id] = next_part
-                send_coffee_part(chat_id, next_part)
-            else:
-                return_to_main_menu(chat_id)
+    chat_id = message.chat.id
+    if chat_id in user_part:
+        next_part = user_part[chat_id] + 1
+        if next_part <= len(milk_coffee_data):
+            user_part[chat_id] = next_part
+            send_coffee_part(chat_id, next_part)
         else:
-            start_milk_coffee(message)
-    except Exception as e:
-        print(f"Ошибка обработки 'Далее': {e}")
-        return_to_main_menu(message.chat.id)
+            return_to_main_menu(chat_id)
+    else:
+        start_milk_coffee(message)
+
 
 def return_to_main_menu(chat_id):
-    if chat_id in current_part:
-        del current_part[chat_id]
+    if chat_id in user_part:
+        del user_part[chat_id]
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = [
         "Узнать интересные факты",
-        "Узнать особенности приготовления в разных странах",
+        "Узнать особенности приготовления",
         "Отличие кофе с молоком",
         "Пройти тест заново",
         "Пока что все"
@@ -290,9 +285,6 @@ def return_to_main_menu(chat_id):
         markup.add(types.KeyboardButton(btn))
 
     bot.send_message(chat_id, "Выберите следующее действие:", reply_markup=markup)
-
-
-
 
 
 
