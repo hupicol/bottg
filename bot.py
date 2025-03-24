@@ -220,63 +220,57 @@ milk_coffee_parts = {
     }
 }
 
+# Глобальная переменная для отслеживания текущей части
+current_part = {}
+
 
 # Обработчик кнопки "Отличие кофе с молоком"
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    send_part1(message.chat.id)
+    current_part[message.chat.id] = 1  # Начинаем с части 1
+    send_milk_coffee_part(message.chat.id)
 
 
-# Функция для отправки первой части
-def send_part1(chat_id):
-    part = milk_coffee_parts[1]
+# Функция отправки текущей части
+def send_milk_coffee_part(chat_id):
+    part_num = current_part.get(chat_id, 1)
+    part = milk_coffee_parts.get(part_num)
+
+    if not part:
+        return_to_main_menu(chat_id)
+        return
+
+    # Отправляем медиагруппу
     media_group = []
     media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
     for photo_url in part['photos'][1:]:
         media_group.append(types.InputMediaPhoto(photo_url))
     bot.send_media_group(chat_id, media_group)
 
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("Часть 2"))
-    bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
-
-# Обработчики кнопок для перехода между частями
-@bot.message_handler(func=lambda message: message.text == "Часть 2")
-def handle_part2(message):
-    send_part2(message.chat.id)
-
-# Функция для отправки второй части
-def send_part2(chat_id):
-    part = milk_coffee_parts[2]
-    media_group = []
-    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
-    for photo_url in part['photos'][1:]:
-        media_group.append(types.InputMediaPhoto(photo_url))
-    bot.send_media_group(chat_id, media_group)
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("Часть 3"))
-    bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
-
-@bot.message_handler(func=lambda message: message.text == "Часть 3")
-def handle_part3(message):
-    send_part3(message.chat.id)
-
-# Функция для отправки третьей части
-def send_part3(chat_id):
-    part = milk_coffee_parts[3]
-    media_group = []
-    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
-    for photo_url in part['photos'][1:]:
-        media_group.append(types.InputMediaPhoto(photo_url))
-    bot.send_media_group(chat_id, media_group)
-
-    return_to_main_menu(chat_id)
+    # Подготавливаем кнопки для следующей части
+    if part_num < len(milk_coffee_parts):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(types.KeyboardButton("Следующая часть"))
+        bot.send_message(chat_id, "Хотите продолжить?", reply_markup=markup)
+    else:
+        return_to_main_menu(chat_id)
 
 
+# Обработчик кнопки "Следующая часть"
+@bot.message_handler(func=lambda message: message.text == "Следующая часть")
+def next_milk_coffee_part(message):
+    chat_id = message.chat.id
+    if chat_id in current_part:
+        current_part[chat_id] += 1
+        send_milk_coffee_part(chat_id)
+    else:
+        start_milk_coffee(message)
 
-# Функция возврата в главное меню
+
+# Функция возврата в главное меню (без изменений)
 def return_to_main_menu(chat_id):
+    if chat_id in current_part:
+        del current_part[chat_id]
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("Узнать интересные факты"))
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
