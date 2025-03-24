@@ -192,8 +192,6 @@ def get_recipe(message):
 coffee_facts_photo = "https://interesnyefakty.org/wp-content/uploads/Interesnye-fakty-o-kofe.jpg"
 coffee_countries_photo = "https://coffee.spb.ru/upload/iblock/a7a/a7ad14bdb28b2eeac9b848d8add5231b.jpg"
 
-
-
 # Ваши данные
 milk_coffee_parts = {
     1: {
@@ -222,58 +220,62 @@ milk_coffee_parts = {
     }
 }
 
-current_part = {}
-
 
 # Обработчик кнопки "Отличие кофе с молоком"
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    send_milk_coffee_part(message.chat.id, 0)
+    send_part1(message.chat.id)
 
 
-# Функция отправки части "Кофе с молоком"
-def send_milk_coffee_part(chat_id, part_index):
-    if part_index >= len(milk_coffee_parts):
-        return_to_main_menu(chat_id)
-        return
-
-    part = milk_coffee_parts[part_index]
-
-    # Создаем медиагруппу (первое фото с текстом, остальные без)
+# Функция для отправки первой части
+def send_part1(chat_id):
+    part = milk_coffee_parts[1]
     media_group = []
-    if part['photos']:
-        # Первое фото с текстом как подпись
-        media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    for photo_url in part['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo_url))
+    bot.send_media_group(chat_id, media_group)
 
-        # Остальные фото без подписи
-        for photo_url in part['photos'][1:]:
-            media_group.append(types.InputMediaPhoto(photo_url))
-
-        # Отправляем медиагруппу
-        bot.send_media_group(chat_id, media_group)
-    else:
-        # Если нет фото, просто отправляем текст
-        bot.send_message(chat_id, part['text'])
-
-    # Определяем следующие действия
-    if part_index < len(milk_coffee_parts) - 1:
-        # Показываем кнопку "Далее" для всех частей кроме последней
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(types.KeyboardButton(f"Часть {part_index + 2}"))
-        bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
-    else:
-        # Для последней части возвращаем в главное меню
-        return_to_main_menu(chat_id)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Часть 2"))
+    bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
 
 
-# Обработчик кнопок "Часть 2", "Часть 3" и т.д.
-@bot.message_handler(func=lambda message: message.text.startswith("Часть "))
-def handle_next_part(message):
-    try:
-        part_num = int(message.text.split()[1])
-        send_milk_coffee_part(message.chat.id, part_num - 1)
-    except (IndexError, ValueError):
-        return_to_main_menu(message.chat.id)
+# Функция для отправки второй части
+def send_part2(chat_id):
+    part = milk_coffee_parts[2]
+    media_group = []
+    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    for photo_url in part['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo_url))
+    bot.send_media_group(chat_id, media_group)
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Часть 3"))
+    bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
+
+
+# Функция для отправки третьей части
+def send_part3(chat_id):
+    part = milk_coffee_parts[3]
+    media_group = []
+    media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
+    for photo_url in part['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo_url))
+    bot.send_media_group(chat_id, media_group)
+
+    return_to_main_menu(chat_id)
+
+
+# Обработчики кнопок для перехода между частями
+@bot.message_handler(func=lambda message: message.text == "Часть 2")
+def handle_part2(message):
+    send_part2(message.chat.id)
+
+
+@bot.message_handler(func=lambda message: message.text == "Часть 3")
+def handle_part3(message):
+    send_part3(message.chat.id)
 
 
 # Функция возврата в главное меню
@@ -285,7 +287,6 @@ def return_to_main_menu(chat_id):
     markup.add(types.KeyboardButton("Пройти тест заново"))
     markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(chat_id, "Выберите следующее действие:", reply_markup=markup)
-
 
 
 @bot.message_handler(func=lambda message: message.text == "Узнать интересные факты")
