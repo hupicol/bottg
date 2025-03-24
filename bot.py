@@ -240,6 +240,10 @@ def send_part1(chat_id):
     markup.add(types.KeyboardButton("Часть 2"))
     bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
 
+# Обработчики кнопок для перехода между частями
+@bot.message_handler(func=lambda message: message.text == "Часть 2")
+def handle_part2(message):
+    send_part2(message.chat.id)
 
 # Функция для отправки второй части
 def send_part2(chat_id):
@@ -254,6 +258,9 @@ def send_part2(chat_id):
     markup.add(types.KeyboardButton("Часть 3"))
     bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
 
+@bot.message_handler(func=lambda message: message.text == "Часть 3")
+def handle_part3(message):
+    send_part3(message.chat.id)
 
 # Функция для отправки третьей части
 def send_part3(chat_id):
@@ -266,16 +273,6 @@ def send_part3(chat_id):
 
     return_to_main_menu(chat_id)
 
-
-# Обработчики кнопок для перехода между частями
-@bot.message_handler(func=lambda message: message.text == "Часть 2")
-def handle_part2(message):
-    send_part2(message.chat.id)
-
-
-@bot.message_handler(func=lambda message: message.text == "Часть 3")
-def handle_part3(message):
-    send_part3(message.chat.id)
 
 
 # Функция возврата в главное меню
