@@ -194,7 +194,6 @@ coffee_facts_photo = "https://interesnyefakty.org/wp-content/uploads/Interesnye-
 coffee_countries_photo = "https://coffee.spb.ru/upload/iblock/a7a/a7ad14bdb28b2eeac9b848d8add5231b.jpg"
 
 
-
 # Обработчик кнопки "Отличие кофе с молоком"
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
@@ -203,54 +202,98 @@ def start_milk_coffee(message):
 
 def send_part1(message):
     # Первая часть - текст и фото
-    text1 = "Кофе с молоком — это идеальная пара.\n\n❃ Капучино (33% – эспрессо, 67% – молоко)\nТолстый слой густой кремовой пенки вместе со сладковатым согревающим молоком и богатым вкусом хорошо сваренного эспрессо – это абсолютное наслаждение. Капучино не должен быть горячим, тогда вы вполне почувствуете его сладкий вкус.\n\n❃ Макиато (90% – эспрессо, 10% – молоко).\nЭто название подразумевает, что эспрессо «отмечен» или «окрашен» молочной пенкой. Последние десять лет или около того кофейни высокого класса придумали новый способ приготовления макиато: они превратили его в эспрессо со вспененным молоком.\n\n❃ Карамельный Макиато (10% – эспрессо, 90% – молоко).\nЕще больше путаницы добавил «Старбакс» со своим карамельным макиато. Это совсем другой напиток, он больше похож на кофе латте, который «отметили» карамельным сиропом."
-    photo1 = 'https://img06.rl0.ru/afisha/e1200x1200i/daily.afisha.ru/uploads/images/6/54/65453565841446b7b22d95a272648e1d.jpg'
-    # Отправляем дополнительные фото без текста
-    bot.send_photo(message.chat.id, 'https://www.galaktika29.ru/upload/iblock/278/lb7ep7tjcv87g0pym6gkgxv72ltjswzs.jpeg')
-    bot.send_photo(message.chat.id, 'https://coffeefan.info/wp-content/uploads/2018/09/karamel-macchiato.jpg')
+    part1 = {
+        'text': "Кофе с молоком — это идеальная пара.\n\n❃ Капучино (33% – эспрессо, 67% – молоко)\nТолстый слой густой кремовой пенки вместе со сладковатым согревающим молоком и богатым вкусом хорошо сваренного эспрессо – это абсолютное наслаждение. Капучино не должен быть горячим, тогда вы вполне почувствуете его сладкий вкус.\n\n❃ Макиато (90% – эспрессо, 10% – молоко).\nЭто название подразумевает, что эспрессо «отмечен» или «окрашен» молочной пенкой. Последние десять лет или около того кофейни высокого класса придумали новый способ приготовления макиато: они превратили его в эспрессо со вспененным молоком.\n\n❃ Карамельный Макиато (10% – эспрессо, 90% – молоко).\nЕще больше путаницы добавил «Старбакс» со своим карамельным макиато. Это совсем другой напиток, он больше похож на кофе латте, который «отметили» карамельным сиропом.",
+        'photos': [
+            'https://img06.rl0.ru/afisha/e1200x1200i/daily.afisha.ru/uploads/images/6/54/65453565841446b7b22d95a272648e1d.jpg',
+            'https://www.galaktika29.ru/upload/iblock/278/lb7ep7tjcv87g0pym6gkgxv72ltjswzs.jpeg',
+            'https://coffeefan.info/wp-content/uploads/2018/09/karamel-macchiato.jpg'
+        ]
+    }
 
-    # Отправляем фото с текстом как подпись
-    bot.send_photo(message.chat.id, photo1, caption=text1)
+    # Отправляем медиагруппу
+    media_group = [types.InputMediaPhoto(part1['photos'][0], caption=part1['text'])]
+    for photo in part1['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo))
+    bot.send_media_group(message.chat.id, media_group)
 
-    bot.register_next_step_handler(message,send_part2)
+    # Кнопка для продолжения
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Далее → Часть 2"))
+    bot.send_message(message.chat.id, "Хотите узнать больше о кофе с молоком?", reply_markup=markup)
+
+    # Регистрируем следующий шаг
+    bot.register_next_step_handler(message, send_part2)
 
 
 def send_part2(message):
-    # Вторая часть - текст и фото
-    text2 = "❃ Кофе Латте (15% – эспрессо, 85% – молоко)\nКогда эспрессо распробовали по всему миру, он был горьким, насыщенным, для многих – абсолютно новое ощущение. Некоторым, впрочем, не нравилась именно эта горечь, и они добавляли молоко, чтобы сделать напиток нежнее. Обычно в кофе латте для смягчения вкуса добавляют больше молока, чем в капучино, но меньше крема.\n\n❃ Латте Макиато (5% – эспрессо, 95% – молоко)\nНекогда популярная версия кофе-латте, часто подаваемая в барах и ресторанах. В отличии от классического латте, где кофе и вспененное горячее молоко смешано вместе, Латте-макиато подают в высоких стеклянных бокалах с ручкой, и готовят так что бы ингредиенты напитка не смешивались, а ложились в бокал слоями. Для Латте-макиато характерна толстая шапка белой молочной пены и слой ароматного сиропа на дне бокала.\n\n❃ Кофе Мокко (15% – эспрессо, 85% – молоко)\nЭто шоколадная версия кофе латте. Он такого же объема, как и кофе латте, но обычно в напиток добавляют немного шоколадного топинга приготовленного тут же в кофейне из какао и сгущенного молока"
-    photo2 = 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Latte_art_3.jpg'
-    bot.send_photo(message.chat.id, 'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG')
-    bot.send_photo(message.chat.id, 'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg')
-    bot.send_photo(message.chat.id, photo2, caption=text2)
-    bot.send_photo(message.chat.id, 'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG')
-    bot.send_photo(message.chat.id, 'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg')
+    # Проверяем, что пользователь нажал кнопку
+    if message.text != "Далее → Часть 2":
+        return_to_main_menu(message)
+        return
 
+    # Вторая часть - текст и фото
+    part2 = {
+        'text': "❃ Кофе Латте (15% – эспрессо, 85% – молоко)\nКогда эспрессо распробовали по всему миру, он был горьким, насыщенным, для многих – абсолютно новое ощущение. Некоторым, впрочем, не нравилась именно эта горечь, и они добавляли молоко, чтобы сделать напиток нежнее. Обычно в кофе латте для смягчения вкуса добавляют больше молока, чем в капучино, но меньше крема.\n\n❃ Латте Макиато (5% – эспрессо, 95% – молоко)\nНекогда популярная версия кофе-латте, часто подаваемая в барах и ресторанах. В отличии от классического латте, где кофе и вспененное горячее молоко смешано вместе, Латте-макиато подают в высоких стеклянных бокалах с ручкой, и готовят так что бы ингредиенты напитка не смешивались, а ложились в бокал слоями. Для Латте-макиато характерна толстая шапка белой молочной пены и слой ароматного сиропа на дне бокала.\n\n❃ Кофе Мокко (15% – эспрессо, 85% – молоко)\nЭто шоколадная версия кофе латте. Он такого же объема, как и кофе латте, но обычно в напиток добавляют немного шоколадного топинга приготовленного тут же в кофейне из какао и сгущенного молока",
+        'photos': [
+            'https://upload.wikimedia.org/wikipedia/commons/c/c6/Latte_art_3.jpg',
+            'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG',
+            'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg'
+        ]
+    }
+
+    # Отправляем медиагруппу
+    media_group = [types.InputMediaPhoto(part2['photos'][0], caption=part2['text'])]
+    for photo in part2['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo))
+    bot.send_media_group(message.chat.id, media_group)
+
+    # Кнопка для продолжения
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Далее → Часть 3"))
+    bot.send_message(message.chat.id, "Продолжим знакомство с кофейными напитками?", reply_markup=markup)
+
+    # Регистрируем следующий шаг
     bot.register_next_step_handler(message, send_part3)
 
 
 def send_part3(message):
-    # Третья часть - текст и фото
-    text3 = "❃ Флэт Уайт (40% – эспрессо, 60% – молоко)\nФлэт уайт – это небольшой крепкий латте. У него должен быть сильный кофейный вкус, и делают его обычно на основе двойного ристретто или двойного эспрессо и добавляют горячее молоко, получая 150-175 мл напитка. Пены в молоке совсем немного, поэтому во флэт уайт немного легче «вписывать» сложный латте-арт.\n\n❃ Кортадо (50% – эспрессо, 50% – молоко)\nКортадо появился в Испании, вернее всего в Мадриде, где его повсеместно подают. Для приготовления кортадо около 30 мл эспрессо смешивают с таким же количеством вспененного молока. По традиции подают в стакане.\n\n❃ Аффогато (40% – эспрессо, 60% – мороженное)\nЭто скорее десерт, чем настоящий кофейный напиток, поэтому во многих кофейнях он появляется как сезонное предложение либо его вообще нет в меню. Самая простая версия рецепта: шарик ванильного мороженого политый эспрессо. Но, многие шеф-бариста предлагают свои авторские варианты этого десерта."
-    photo3 = 'https://perfectdailygrind.com/wp-content/uploads/2018/11/flat-white-1024x640.jpg'
+    # Проверяем, что пользователь нажал кнопку
+    if message.text != "Далее → Часть 3":
+        return_to_main_menu(message)
+        return
 
-    bot.send_photo(message.chat.id,'https://perfectdailygrind.com/wp-content/uploads/2018/11/flat-white-1024x640.jpg')
-    bot.send_photo(message.chat.id, 'https://gospecialtycoffee.com/medialibrary/2023/07/cortado-gospecialtycoffee.jpg')
-    bot.send_photo(message.chat.id,
-                   'https://upload.wikimedia.org/wikipedia/commons/1/17/Vinoteca%2C_Smithfield%2C_London_%284485849609%29.jpg')
+    # Третья часть - текст и фото
+    part3 = {
+        'text': "❃ Флэт Уайт (40% – эспрессо, 60% – молоко)\nФлэт уайт – это небольшой крепкий латте. У него должен быть сильный кофейный вкус, и делают его обычно на основе двойного ристретто или двойного эспрессо и добавляют горячее молоко, получая 150-175 мл напитка. Пены в молоке совсем немного, поэтому во флэт уайт немного легче «вписывать» сложный латте-арт.\n\n❃ Кортадо (50% – эспрессо, 50% – молоко)\nКортадо появился в Испании, вернее всего в Мадриде, где его повсеместно подают. Для приготовления кортадо около 30 мл эспрессо смешивают с таким же количеством вспененного молока. По традиции подают в стакане.\n\n❃ Аффогато (40% – эспрессо, 60% – мороженное)\nЭто скорее десерт, чем настоящий кофейный напиток, поэтому во многих кофейнях он появляется как сезонное предложение либо его вообще нет в меню. Самая простая версия рецепта: шарик ванильного мороженого политый эспрессо. Но, многие шеф-бариста предлагают свои авторские варианты этого десерта.",
+        'photos': [
+            'https://perfectdailygrind.com/wp-content/uploads/2018/11/flat-white-1024x640.jpg',
+            'https://gospecialtycoffee.com/medialibrary/2023/07/cortado-gospecialtycoffee.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/1/17/Vinoteca%2C_Smithfield%2C_London_%284485849609%29.jpg'
+        ]
+    }
+
+    # Отправляем медиагруппу
+    media_group = [types.InputMediaPhoto(part3['photos'][0], caption=part3['text'])]
+    for photo in part3['photos'][1:]:
+        media_group.append(types.InputMediaPhoto(photo))
+    bot.send_media_group(message.chat.id, media_group)
 
     # Возвращаем в главное меню
-    bot.send_message(message.chat.id,text3)
-    return_to_main_menu(message.chat.id)
+    return_to_main_menu(message)
 
 
 def return_to_main_menu(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("Узнать интересные факты"))
-    markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
-    markup.add(types.KeyboardButton("Отличие кофе с молоком"))
-    markup.add(types.KeyboardButton("Пройти тест заново"))
-    markup.add(types.KeyboardButton("Пока что все"))
-    bot.send_message(message.chat.id, "Выберите следующее действие:", reply_markup=markup)
+    buttons = [
+        "Узнать интересные факты",
+        "Узнать особенности приготовления в разных странах",
+        "Отличие кофе с молоком",
+        "Пройти тест заново",
+        "Пока что все"
+    ]
+    markup.add(*[types.KeyboardButton(btn) for btn in buttons])
+    bot.send_message(message.chat.id, "Что вас интересует дальше?", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Узнать интересные факты")
