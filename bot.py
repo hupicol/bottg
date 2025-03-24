@@ -195,7 +195,7 @@ coffee_countries_photo = "https://coffee.spb.ru/upload/iblock/a7a/a7ad14bdb28b2e
 
 
 # Ваши данные
-milk_coffee_data = {
+milk_coffee_parts = {
     1: {
         'text': "Кофе с молоком — это идеальная пара.\n\n❃ Капучино (33% – эспрессо, 67% – молоко)\nТолстый слой густой кремовой пенки вместе со сладковатым согревающим молоком и богатым вкусом хорошо сваренного эспрессо – это абсолютное наслаждение. Капучино не должен быть горячим, тогда вы вполне почувствуете его сладкий вкус.\n\n❃ Макиато (90% – эспрессо, 10% – молоко).\nЭто название подразумевает, что эспрессо «отмечен» или «окрашен» молочной пенкой. Последние десять лет или около того кофейни высокого класса придумали новый способ приготовления макиато: они превратили его в эспрессо со вспененным молоком.\n\n❃ Карамельный Макиато (10% – эспрессо, 90% – молоко).\nЕще больше путаницы добавил «Старбакс» со своим карамельным макиато. Это совсем другой напиток, он больше похож на кофе латте, который «отметили» карамельным сиропом.",
         'photos': [
@@ -228,16 +228,16 @@ current_part = {}
 # Обработчик кнопки "Отличие кофе с молоком"
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
-    current_part[message.chat.id] = 1
-    send_coffee_part(message.chat.id, 1)
+    send_milk_coffee_part(message.chat.id, 0)
 
 
-# Функция отправки части с фото и текстом
-def send_coffee_part(chat_id, part_num):
-    part = milk_coffee_data.get(part_num)
-    if not part:
+# Функция отправки части "Кофе с молоком"
+def send_milk_coffee_part(chat_id, part_index):
+    if part_index >= len(milk_coffee_parts):
         return_to_main_menu(chat_id)
         return
+
+    part = milk_coffee_parts[part_index]
 
     # Создаем медиагруппу (первое фото с текстом, остальные без)
     media_group = []
@@ -256,36 +256,28 @@ def send_coffee_part(chat_id, part_num):
         bot.send_message(chat_id, part['text'])
 
     # Определяем следующие действия
-    if part_num < len(milk_coffee_data):
+    if part_index < len(milk_coffee_parts) - 1:
         # Показываем кнопку "Далее" для всех частей кроме последней
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(types.KeyboardButton("Далее"))
+        markup.add(types.KeyboardButton(f"Часть {part_index + 2}"))
         bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
     else:
         # Для последней части возвращаем в главное меню
         return_to_main_menu(chat_id)
 
 
-# Обработчик кнопки "Далее"
-@bot.message_handler(func=lambda message: message.text == "Далее")
-def handle_next(message):
-    chat_id = message.chat.id
-    if chat_id in current_part:
-        next_part = current_part[chat_id] + 1
-        if next_part <= len(milk_coffee_data):
-            current_part[chat_id] = next_part
-            send_coffee_part(chat_id, next_part)
-        else:
-            return_to_main_menu(chat_id)
-    else:
-        start_milk_coffee(message)
+# Обработчик кнопок "Часть 2", "Часть 3" и т.д.
+@bot.message_handler(func=lambda message: message.text.startswith("Часть "))
+def handle_next_part(message):
+    try:
+        part_num = int(message.text.split()[1])
+        send_milk_coffee_part(message.chat.id, part_num - 1)
+    except (IndexError, ValueError):
+        return_to_main_menu(message.chat.id)
 
 
 # Функция возврата в главное меню
 def return_to_main_menu(chat_id):
-    if chat_id in current_part:
-        del current_part[chat_id]
-
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("Узнать интересные факты"))
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
