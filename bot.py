@@ -245,26 +245,29 @@ def send_coffee_part(chat_id, part_num):
         for photo_url in part['photos'][1:]:
             media_group.append(types.InputMediaPhoto(photo_url))
 
-        # Отправляем всю группу фото с текстом
+        # Отправляем всю группу фото с текстом к первому
         bot.send_media_group(chat_id, media_group)
 
-    # Создаем инлайн-кнопку "Далее"
+    # Определяем следующие действия
     if part_num < len(milk_coffee_data):
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("Далее →", callback_data=f"next_{part_num + 1}"))
-        bot.send_message(chat_id, " ", reply_markup=markup)  # Пустое сообщение с кнопкой
+        # Для всех частей кроме последней - кнопка "Далее"
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(types.KeyboardButton("Далее"))
+        bot.send_message(chat_id, "➡️ Хотите увидеть следующую часть?", reply_markup=markup)
     else:
+        # Для последней части - возврат в меню
         return_to_main_menu(chat_id)
 
 
-# Обработчик инлайн-кнопок
-@bot.callback_query_handler(func=lambda call: call.data.startswith('next_'))
-def handle_next(call):
-    chat_id = call.message.chat.id
-    next_part = int(call.data.split('_')[1])
-    current_part[chat_id] = next_part
-    bot.delete_message(chat_id, call.message.message_id)  # Удаляем сообщение с кнопкой
-    send_coffee_part(chat_id, next_part)
+@bot.message_handler(func=lambda message: message.text == "Далее")
+def handle_next(message):
+    chat_id = message.chat.id
+    if chat_id in current_part:
+        next_part = current_part[chat_id] + 1
+        current_part[chat_id] = next_part
+        send_coffee_part(chat_id, next_part)
+    else:
+        start_milk_coffee(message)
 
 
 def return_to_main_menu(chat_id):
