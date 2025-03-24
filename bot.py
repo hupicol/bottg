@@ -215,7 +215,6 @@ def send_part1(message):
 
     # Через 1 секунду отправляем вторую часть
     bot.send_chat_action(message.chat.id, 'typing')  # Показываем "печатает"
-    time.sleep(1)
     send_part2(message.chat.id)
 
 
@@ -229,7 +228,6 @@ def send_part2(message):
     bot.send_photo(message.chat.id, 'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg')
 
     bot.send_chat_action(message.chat.id, 'typing')
-    time.sleep(1)
     send_part3(message.chat.id)
 
 
