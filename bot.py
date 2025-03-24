@@ -225,68 +225,73 @@ milk_coffee_data = {
 current_part = {}
 
 
+# Обработчик кнопки "Отличие кофе с молоком"
 @bot.message_handler(func=lambda message: message.text == "Отличие кофе с молоком")
 def start_milk_coffee(message):
     current_part[message.chat.id] = 1
     send_coffee_part(message.chat.id, 1)
 
 
+# Функция отправки части с фото и текстом
 def send_coffee_part(chat_id, part_num):
     part = milk_coffee_data.get(part_num)
     if not part:
         return_to_main_menu(chat_id)
         return
 
-    # Создаем медиагруппу с текстом как подписью к первому фото
+    # Создаем медиагруппу (первое фото с текстом, остальные без)
     media_group = []
     if part['photos']:
-        # Первое фото с текстом
+        # Первое фото с текстом как подпись
         media_group.append(types.InputMediaPhoto(part['photos'][0], caption=part['text']))
 
         # Остальные фото без подписи
         for photo_url in part['photos'][1:]:
             media_group.append(types.InputMediaPhoto(photo_url))
 
-        # Отправляем всю группу фото с текстом к первому
+        # Отправляем медиагруппу
         bot.send_media_group(chat_id, media_group)
+    else:
+        # Если нет фото, просто отправляем текст
+        bot.send_message(chat_id, part['text'])
 
     # Определяем следующие действия
     if part_num < len(milk_coffee_data):
-        # Для всех частей кроме последней - кнопка "Далее"
+        # Показываем кнопку "Далее" для всех частей кроме последней
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(types.KeyboardButton("Далее"))
-        bot.send_message(chat_id, "➡️ Хотите увидеть следующую часть?", reply_markup=markup)
+        bot.send_message(chat_id, "➡️ Хотите продолжить?", reply_markup=markup)
     else:
-        # Для последней части - возврат в меню
+        # Для последней части возвращаем в главное меню
         return_to_main_menu(chat_id)
 
 
+# Обработчик кнопки "Далее"
 @bot.message_handler(func=lambda message: message.text == "Далее")
 def handle_next(message):
     chat_id = message.chat.id
     if chat_id in current_part:
         next_part = current_part[chat_id] + 1
-        current_part[chat_id] = next_part
-        send_coffee_part(chat_id, next_part)
+        if next_part <= len(milk_coffee_data):
+            current_part[chat_id] = next_part
+            send_coffee_part(chat_id, next_part)
+        else:
+            return_to_main_menu(chat_id)
     else:
         start_milk_coffee(message)
 
 
+# Функция возврата в главное меню
 def return_to_main_menu(chat_id):
     if chat_id in current_part:
         del current_part[chat_id]
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = [
-        "Узнать интересные факты",
-        "Узнать особенности приготовления в разных странах",
-        "Отличие кофе с молоком",
-        "Пройти тест заново",
-        "Пока что все"
-    ]
-    for btn in buttons:
-        markup.add(types.KeyboardButton(btn))
-
+    markup.add(types.KeyboardButton("Узнать интересные факты"))
+    markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
+    markup.add(types.KeyboardButton("Отличие кофе с молоком"))
+    markup.add(types.KeyboardButton("Пройти тест заново"))
+    markup.add(types.KeyboardButton("Пока что все"))
     bot.send_message(chat_id, "Выберите следующее действие:", reply_markup=markup)
 
 
