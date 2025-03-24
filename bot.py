@@ -254,14 +254,9 @@ def send_next_milk_part(chat_id):
             caption=content['text']
         ))
 
-        # Остальные фото без подписи
         for photo_url in content['photos'][1:]:
             media_group.append(types.InputMediaPhoto(photo_url))
-
-        # Отправляем медиагруппу
         bot.send_media_group(chat_id, media_group)
-
-        # Увеличиваем счетчик
         user_state['current_part'] += 1
 
         # Если это не последняя часть - добавляем кнопку "Далее"
@@ -278,7 +273,12 @@ def send_next_milk_part(chat_id):
 
 @bot.message_handler(func=lambda message: message.text == "Далее")
 def handle_next(message):
-    send_next_milk_part(message.chat.id)
+    # Убедимся, что состояние пользователя существует
+    if message.chat.id not in user_message_states:
+        # Если состояние потеряно, начинаем сначала
+        milk_coffee_differences(message)
+    else:
+        send_next_milk_part(message.chat.id)
 
 
 def return_to_main_menu(chat_id):
