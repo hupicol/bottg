@@ -1,6 +1,5 @@
 import telebot
 from telebot import types
-import time
 
 bot = telebot.TeleBot('7632418148:AAHe757NGrLH4Qr8X1ObxGFUMKoiOZnFlgA')
 
@@ -55,10 +54,45 @@ def handle_initial_choice(message):
         bot.send_message(message.chat.id, "Пожалуйста, выберите один из предложенных вариантов.")
         bot.register_next_step_handler(message, handle_initial_choice)
 
-def on_1click(message):
+
+@bot.message_handler(func=lambda message: message.text == "Начнем опрос")
+def start_poll(message):
+    user_answers[message.chat.id] = []  # Очищаем предыдущие ответы
+    bot.send_message(message.chat.id, 'Ну что ж! Первый вопрос..')
+    first_q(message)
+
+# Обновленная функция return_to_main_menu
+def return_to_main_menu(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = [
+        "Узнать интересные факты",
+        "Узнать особенности приготовления в разных странах",
+        "Отличие кофе с молоком",
+        "Пройти тест заново",
+        "Пока что все",
+        "Начнем опрос"  # Добавляем кнопку явно
+    ]
+    markup.add(*[types.KeyboardButton(btn) for btn in buttons])
+    bot.send_message(message.chat.id, "Что вас интересует дальше?", reply_markup=markup)
+    # Регистрируем обработчик для всех кнопок главного меню
+    bot.register_next_step_handler(message, handle_main_menu_choice)
+
+def handle_main_menu_choice(message):
     if message.text == "Начнем опрос":
-        bot.send_message(message.chat.id, 'Ну что ж! Первый вопрос..')
-        first_q(message)
+        start_poll(message)
+    elif message.text == "Узнать интересные факты":
+        send_coffee_facts(message)
+    elif message.text == "Узнать особенности приготовления в разных странах":
+        send_coffee_countries(message)
+    elif message.text == "Отличие кофе с молоком":
+        start_milk_coffee(message)
+    elif message.text == "Пройти тест заново":
+        restart_test(message)
+    elif message.text == "Пока что все":
+        stop_test(message)
+    else:
+        bot.send_message(message.chat.id, "Пожалуйста, выберите один из вариантов")
+        return_to_main_menu(message)
 
 def first_q(message):
     options = ['A1', 'B1', 'C1', 'D1', 'E1']
@@ -309,17 +343,6 @@ def send_part3(message):
     return_to_main_menu(message)
 
 
-def return_to_main_menu(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = [
-        "Узнать интересные факты",
-        "Узнать особенности приготовления в разных странах",
-        "Пройти тест заново",
-        "Пока что все",
-        "Начнем опрос"
-    ]
-    markup.add(*[types.KeyboardButton(btn) for btn in buttons])
-    bot.send_message(message.chat.id, "Что вас интересует дальше?", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Узнать интересные факты")
@@ -379,12 +402,14 @@ def stop_test(message):
 @bot.message_handler(func=lambda message: message.text == "Пройти тест заново")
 def restart_test(message):
     user_answers[message.chat.id] = []  # Очищаем ответы пользователя
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Начнем опрос"))
     bot.send_message(
         message.chat.id,
         'Снова привет! Взглянем иначе на эти вопросы, готов?',
-        reply_markup=create_reply_markup(["Начнем опрос"])
+        reply_markup=markup
     )
-    bot.register_next_step_handler(message, on_1click)
+    bot.register_next_step_handler(message, lambda m: start_poll(m) if m.text == "Начнем опрос" else return_to_main_menu(m))
 
 
 bot.polling(none_stop=True)
