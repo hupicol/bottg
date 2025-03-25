@@ -219,7 +219,7 @@ def send_part1(message):
 
     # Кнопка для продолжения
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("Далее → Часть 2"))
+    markup.add(types.KeyboardButton("Далее"))
     bot.send_message(message.chat.id, "Хотите узнать больше о кофе с молоком?", reply_markup=markup)
 
     # Регистрируем следующий шаг
@@ -227,30 +227,34 @@ def send_part1(message):
 
 
 def send_2p(message):
-    # Проверяем, что пользователь нажал кнопку
-    pa2 = {
-        'text': "❃ Кофе Латте (15% – эспрессо, 85% – молоко)\nКогда эспрессо распробовали по всему миру, он был горьким, насыщенным, для многих – абсолютно новое ощущение. Некоторым, впрочем, не нравилась именно эта горечь, и они добавляли молоко, чтобы сделать напиток нежнее. Обычно в кофе латте для смягчения вкуса добавляют больше молока, чем в капучино, но меньше крема.\n\n❃ Латте Макиато (5% – эспрессо, 95% – молоко)\nНекогда популярная версия кофе-латте, часто подаваемая в барах и ресторанах. В отличии от классического латте, где кофе и вспененное горячее молоко смешано вместе, Латте-макиато подают в высоких стеклянных бокалах с ручкой, и готовят так что бы ингредиенты напитка не смешивались, а ложились в бокал слоями. Для Латте-макиато характерна толстая шапка белой молочной пены и слой ароматного сиропа на дне бокала.\n\n❃ Кофе Мокко (15% – эспрессо, 85% – молоко)\nЭто шоколадная версия кофе латте. Он такого же объема, как и кофе латте, но обычно в напиток добавляют немного шоколадного топинга приготовленного тут же в кофейне из какао и сгущенного молока",
-        'photos': [
-            'https://upload.wikimedia.org/wikipedia/commons/c/c6/Latte_art_3.jpg',
-            'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG',
-            'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg'
-        ]
-    }
-    if message.text == "Далее → Часть 2":
+    # Проверяем, что пользователь нажал кнопку "Далее"
+    if message.text == "Далее":
+        pa2 = {
+            'text': "❃ Кофе Латте (15% – эспрессо, 85% – молоко)\nКогда эспрессо распробовали по всему миру...",
+            # Полный текст
+            'photos': [
+                'https://upload.wikimedia.org/wikipedia/commons/c/c6/Latte_art_3.jpg',
+                'https://img.povar.ru/mobile/eb/a4/eb/8f/kofe_latte_makiato_karamelnii-784243.JPG',
+                'https://mircoffee.ru/ckfinder/userfiles/images/6__3.jpg'
+            ]
+        }
 
-    # Отправляем медиагруппу
+        # Отправляем медиагруппу
         media_group = [types.InputMediaPhoto(pa2['photos'][0], caption=pa2['text'])]
         for photo in pa2['photos'][1:]:
             media_group.append(types.InputMediaPhoto(photo))
         bot.send_media_group(message.chat.id, media_group)
 
-    # Кнопка для продолжения
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("Далее → Часть 3"))
-    bot.send_message(message.chat.id, "Продолжим знакомство с кофейными напитками?", reply_markup=markup)
+        # Кнопка для продолжения
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(types.KeyboardButton("Далее → Часть 3"))
+        bot.send_message(message.chat.id, "Продолжим знакомство с кофейными напитками?", reply_markup=markup)
 
-    # Регистрируем следующий шаг
-    bot.register_next_step_handler(message, send_part3)
+        # Регистрируем следующий шаг
+        bot.register_next_step_handler(message, send_part3)
+
+    else:  # Если пользователь отправил что-то другое
+        return_to_main_menu(message)
 
 
 def send_part3(message):
