@@ -396,7 +396,7 @@ def stop_test(message):
     user_answers[message.chat.id] = []  # Очищаем ответы пользователя
     bot.send_message(
         message.chat.id,
-        'На этом пока все! Если захочешь узнать еще, то выбирай из кнопочек:)'
+        'На этом пока все! Если захочешь узнать еще, то начинай заново через Меню:)'
     )
 
 @bot.message_handler(func=lambda message: message.text == "Пройти тест заново")
