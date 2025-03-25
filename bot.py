@@ -19,7 +19,7 @@ def handle_start_restart(message):
 
     # Создаем клавиатуру с основными кнопками
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    markup.add(types.KeyboardButton("Конечно! Начнем опрос"))
+    markup.add(types.KeyboardButton("Начнем опрос"))
     markup.add(types.KeyboardButton("Узнать интересные факты"))
     markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
     markup.add(types.KeyboardButton("Отличие кофе с молоком"))
@@ -42,7 +42,7 @@ def handle_start_restart(message):
 
 
 def handle_initial_choice(message):
-    if message.text == "Конечно! Начнем опрос":
+    if message.text == "Начнем опрос":
         bot.send_message(message.chat.id, 'Ну что ж! Первый вопрос..')
         first_q(message)
     elif message.text == "Узнать интересные факты":
@@ -56,7 +56,7 @@ def handle_initial_choice(message):
         bot.register_next_step_handler(message, handle_initial_choice)
 
 def on_1click(message):
-    if message.text == 'Конечно! Начнем':
+    if message.text == "Начнем опрос":
         bot.send_message(message.chat.id, 'Ну что ж! Первый вопрос..')
         first_q(message)
 
@@ -315,7 +315,8 @@ def return_to_main_menu(message):
         "Узнать интересные факты",
         "Узнать особенности приготовления в разных странах",
         "Пройти тест заново",
-        "Пока что все"
+        "Пока что все",
+        "Начнем опрос"
     ]
     markup.add(*[types.KeyboardButton(btn) for btn in buttons])
     bot.send_message(message.chat.id, "Что вас интересует дальше?", reply_markup=markup)
@@ -340,6 +341,7 @@ def send_coffee_facts(message):
     markup.add(types.KeyboardButton("Отличие кофе с молоком"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
     markup.add(types.KeyboardButton("Пока что все"))
+    markup.add(types.KeyboardButton("Начнем опрос"))
     bot.send_message(message.chat.id, "Признайся, интересно ?)", reply_markup=markup)
 
 
@@ -362,6 +364,7 @@ def send_coffee_countries(message):
     markup.add(types.KeyboardButton("Отличие кофе с молоком"))
     markup.add(types.KeyboardButton("Пройти тест заново"))
     markup.add(types.KeyboardButton("Пока что все"))
+    markup.add(types.KeyboardButton("Начнем опрос"))
     bot.send_message(message.chat.id, "Может хочешь больше информации ?)", reply_markup=markup)
 
 
@@ -370,7 +373,7 @@ def stop_test(message):
     user_answers[message.chat.id] = []  # Очищаем ответы пользователя
     bot.send_message(
         message.chat.id,
-        'На этом пока все! Если захочешь пройти тест заново, открой Меню:)'
+        'На этом пока все! Если захочешь узнать еще, открой Меню:)'
     )
 
 @bot.message_handler(func=lambda message: message.text == "Пройти тест заново")
@@ -379,7 +382,7 @@ def restart_test(message):
     bot.send_message(
         message.chat.id,
         'Снова привет! Взглянем иначе на эти вопросы, готов?',
-        reply_markup=create_reply_markup(['Конечно! Начнем'])
+        reply_markup=create_reply_markup(["Начнем опрос"])
     )
     bot.register_next_step_handler(message, on_1click)
 
