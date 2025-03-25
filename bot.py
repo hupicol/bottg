@@ -12,22 +12,48 @@ def create_reply_markup(options):
         markup.add(types.KeyboardButton(option))
     return markup
 
+
 @bot.message_handler(commands=['start', 'restart'])
 def handle_start_restart(message):
     user_answers[message.chat.id] = []  # Очищаем ответы пользователя
+
+    # Создаем клавиатуру с основными кнопками
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup.add(types.KeyboardButton("Конечно! Начнем опрос"))
+    markup.add(types.KeyboardButton("Узнать интересные факты"))
+    markup.add(types.KeyboardButton("Узнать особенности приготовления в разных странах"))
+    markup.add(types.KeyboardButton("Отличие кофе с молоком"))
+
     if message.text == '/start':
         bot.send_message(
             message.chat.id,
-            f'Привет, {message.from_user.first_name}! Давай знакомиться! Я задам тебе пару вопросов, только отвечай честно! Готов?...',
-            reply_markup=create_reply_markup(['Конечно! Начнем'])
+            f'Привет, {message.from_user.first_name}! Давай знакомиться! Я задам тебе пару вопросов, только отвечай честно! Готов?..Или же сам узнай кое-что о кофе!',
+            reply_markup=markup
         )
     elif message.text == '/restart':
         bot.send_message(
             message.chat.id,
-            'Снова привет! Взглянем иначе на эти вопросы, готов?',
-            reply_markup=create_reply_markup(['Конечно! Начнем'])
+            'Снова привет! Взглянем иначе на эти вопросы, готов? Или ты за новой информацией о кофе?',
+            reply_markup=markup
         )
-    bot.register_next_step_handler(message, on_1click)
+
+    # Регистрируем обработчик для всех возможных кнопок
+    bot.register_next_step_handler(message, handle_initial_choice)
+
+
+def handle_initial_choice(message):
+    if message.text == "Конечно! Начнем опрос":
+        bot.send_message(message.chat.id, 'Ну что ж! Первый вопрос..')
+        first_q(message)
+    elif message.text == "Узнать интересные факты":
+        send_coffee_facts(message)
+    elif message.text == "Узнать особенности приготовления в разных странах":
+        send_coffee_countries(message)
+    elif message.text == "Отличие кофе с молоком":
+        start_milk_coffee(message)
+    else:
+        bot.send_message(message.chat.id, "Пожалуйста, выберите один из предложенных вариантов.")
+        bot.register_next_step_handler(message, handle_initial_choice)
 
 def on_1click(message):
     if message.text == 'Конечно! Начнем':
