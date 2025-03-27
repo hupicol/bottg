@@ -63,7 +63,7 @@ def start_poll(message):
 
 # Обновленная функция return_to_main_menu
 def return_to_main_menu(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     buttons = [
         "Узнать интересные факты",
         "Узнать особенности приготовления в разных странах",
