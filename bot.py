@@ -51,7 +51,7 @@ def handle_initial_choice(message):
     elif message.text == "Отличие кофе с молоком":
         start_milk_coffee(message)
     else:
-        bot.send_message(message.chat.id, "Пожалуйста, выберите один из предложенных вариантов.")
+        bot.send_message(message.chat.id, "Пожалуйста, выберите один из предложенных вариантов")
         bot.register_next_step_handler(message, handle_initial_choice)
 
 
@@ -63,7 +63,7 @@ def start_poll(message):
 
 # Обновленная функция return_to_main_menu
 def return_to_main_menu(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
     buttons = [
         "Узнать интересные факты",
         "Узнать особенности приготовления в разных странах",
