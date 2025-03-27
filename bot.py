@@ -406,7 +406,7 @@ def restart_test(message):
     markup.add(types.KeyboardButton("Начнем опрос"))
     bot.send_message(
         message.chat.id,
-        'Снова привет! Взглянем иначе на эти вопросы, готов?',
+        'Взглянем иначе на эти вопросы, готов?',
         reply_markup=markup
     )
     bot.register_next_step_handler(message, lambda m: start_poll(m) if m.text == "Начнем опрос" else return_to_main_menu(m))
